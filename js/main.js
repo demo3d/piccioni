@@ -1,5 +1,5 @@
 var scene = new THREE.Scene();
-var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+var camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 1000);
 
 var renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -10,7 +10,7 @@ var character, piccione;
 
 var piccioni= [];
 
-camera.position.z = 10;
+camera.position.z = 40;
 
 function render() {
     requestAnimationFrame(render);
@@ -65,7 +65,7 @@ function initMesh() {
             new THREE.MultiMaterial(materials)
         );
         multiply();
-        scene.add(piccione);
+        //scene.add(piccione);
     });
 }
 
