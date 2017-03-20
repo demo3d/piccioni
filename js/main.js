@@ -3,6 +3,7 @@ var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHei
 
 var renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setClearColor (0x9debf4, 1);
 document.body.appendChild(renderer.domElement);
 
 var character, piccione;
@@ -20,9 +21,14 @@ function render() {
 var mesh = null;
 
 var materials = [
-    new THREE.MeshStandardMaterial( {
-      color: 0xE7E7E7,
-      roughness: 0.5
+    new THREE.MeshPhongMaterial( {
+      // color: 0xE7E7E7,
+      // roughness: 0.5
+      color: 0xBCC6CC,
+  shininess: 30,
+  metal: true,
+  wrapAround: true,
+  shading: THREE.FlatShading
     } ), // right
     new THREE.MeshStandardMaterial( {
       color: 0xE7790D,
@@ -39,8 +45,16 @@ var materials = [
 ];
 
 function initLights() {
-    var light = new THREE.AmbientLight(0xffffff);
-    scene.add(light);
+      var light = new THREE.AmbientLight(0xffffff,1);
+      scene.add(light);
+
+    var light2 = new THREE.PointLight( 0x0000ff, 1, 100 );
+    light2.position.set( 50, -50, 1 );
+    scene.add( light2 );
+
+    var light3 = new THREE.PointLight( 0xffff00, 1, 100 );
+    light3.position.set( -50, -50, 1 );
+    scene.add( light3 );
 }
 
 function initMesh() {
@@ -80,7 +94,7 @@ function multiply(){
     p.position.set(
       10*i-50,
       10*j-50,
-      Math.random()*-100
+      Math.random()*-50
     );
     piccioni.push(p);
     scene.add(p);
