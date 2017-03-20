@@ -1,149 +1,66 @@
-var clock, container, camera, scene, renderer, controls, listener;
+var scene = new THREE.Scene();
+var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-var ground, character;
-var light;
-var textureLoader = new THREE.TextureLoader();
-var loader = new THREE.JSONLoader();
-var isLoaded = false;
-var action = {}, mixer;
-var activeActionName = 'idle';
+var renderer = new THREE.WebGLRenderer();
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
 
-var arrAnimations = [
-  'idle',
-  'walk',
-  'run',
-  'hello'
+var character, piccione;
+
+camera.position.z = 10;
+
+function render() {
+    requestAnimationFrame(render);
+    ruotapiccione()
+    renderer.render(scene, camera);
+}
+
+var mesh = null;
+
+var materials = [
+
+    new THREE.MeshStandardMaterial( {
+      color: 0xE7E7E7,
+      roughness: 0.5
+    } ), // right
+    new THREE.MeshStandardMaterial( {
+      color: 0xE7790D,
+      roughness: 0.5
+    } ), // left
+    new THREE.MeshStandardMaterial( {
+      color: 0x5C8678,
+      roughness: 0.5
+    } ), // top
+    new THREE.MeshStandardMaterial( {
+      color: 0x373737,
+      roughness: 0.5
+    } ), // bottom
 ];
-var actualAnimation = 0;
 
-init();
+function initLights() {
+    var light = new THREE.AmbientLight(0xffffff);
+    scene.add(light);
+}
 
-function init () {
-  clock = new THREE.Clock();
-
-  scene = new THREE.Scene();
-
-  renderer = new THREE.WebGLRenderer({ antialias: true });
-  renderer.setPixelRatio(window.devicePixelRatio);
-  renderer.setSize(window.innerWidth, window.innerHeight);
-
-  container = document.getElementById('container');
-  container.appendChild(renderer.domElement);
-
-  camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-  camera.position.set(0, 1.2, 2.5);
-  listener = new THREE.AudioListener();
-  camera.add(listener);
-
-  controls = new THREE.OrbitControls(camera, renderer.domElement);
-  controls.target = new THREE.Vector3(0, 0.6, 0);
-  // Lights
-  light = new THREE.AmbientLight(0xffffff, 1);
-  scene.add(light);
-
-  textureLoader.load('textures/ground.png', function (texture) {
-    var geometry = new THREE.PlaneBufferGeometry(2, 2);
-    geometry.rotateX(-Math.PI / 2);
-    var material = new THREE.MeshBasicMaterial({ map: texture, transparent: true });
-    ground = new THREE.Mesh(geometry, material);
-    scene.add(ground);
-
-  });
-
-  loader.load('./models/eva-animated.json', function (geometry, materials) {
-    materials.forEach(function (material) {
-      material.skinning = true;
+function initMesh() {
+    var loader = new THREE.JSONLoader();
+    loader.load('./models/piccione.json', function(geometry,mat) {
+        piccione = new THREE.Mesh(
+            geometry,
+            new THREE.MultiMaterial(materials)
+        );
+        scene.add(piccione);
     });
-    character = new THREE.SkinnedMesh(
-      geometry,
-      new THREE.MeshFaceMaterial(materials)
-    );
-
-    mixer = new THREE.AnimationMixer(character);
-
-    action.hello = mixer.clipAction(geometry.animations[ 0 ]);
-    action.idle = mixer.clipAction(geometry.animations[ 1 ]);
-    action.run = mixer.clipAction(geometry.animations[ 3 ]);
-    action.walk = mixer.clipAction(geometry.animations[ 4 ]);
-
-    action.hello.setEffectiveWeight(1);
-    action.idle.setEffectiveWeight(1);
-    action.run.setEffectiveWeight(1);
-    action.walk.setEffectiveWeight(1);
-
-    action.hello.setLoop(THREE.LoopOnce, 0);
-    action.hello.clampWhenFinished = true;
-
-    action.hello.enabled = true;
-    action.idle.enabled = true;
-    action.run.enabled = true;
-    action.walk.enabled = true;
-
-    scene.add(character);
-
-    window.addEventListener('resize', onWindowResize, false);
-    window.addEventListener('click', onDoubleClick, false);
-    console.log('Double click to change animation');
-    animate();
-
-    isLoaded = true;
-
-    action.idle.play();
-  });
 }
 
-function fadeAction (name) {
-  var from = action[ activeActionName ].play();
-  var to = action[ name ].play();
+var SPEED = 0.01;
 
-  from.enabled = true;
-  to.enabled = true;
-
-  if (to.loop === THREE.LoopOnce) {
-    to.reset();
-  }
-
-  from.crossFadeTo(to, 0.3);
-  activeActionName = name;
-
+function ruotapiccione() {
+    piccione.rotation.x -= SPEED * 2;
+    piccione.rotation.y -= SPEED;
+    piccione.rotation.z -= SPEED * 3;
 }
 
-function onWindowResize () {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-
-  renderer.setSize(window.innerWidth, window.innerHeight);
-}
-
-var mylatesttap;
-function onDoubleClick () {
-  var now = new Date().getTime();
-  var timesince = now - mylatesttap;
-  if ((timesince < 600) && (timesince > 0)) {
-    if (actualAnimation == arrAnimations.length - 1) {
-      actualAnimation = 0;
-    } else {
-      actualAnimation++;
-    }
-    fadeAction(arrAnimations[actualAnimation]);
-
-  } else {
-    // too much time to be a doubletap
-  }
-
-  mylatesttap = new Date().getTime();
-
-}
-
-function animate () {
-  requestAnimationFrame(animate);
-  controls.update();
-  render();
-
-}
-
-function render () {
-  var delta = clock.getDelta();
-  mixer.update(delta);
-  renderer.render(scene, camera);
-}
+initLights();
+initMesh();
+render();
