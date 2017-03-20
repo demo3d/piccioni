@@ -7,18 +7,19 @@ document.body.appendChild(renderer.domElement);
 
 var character, piccione;
 
+var piccioni= [];
+
 camera.position.z = 10;
 
 function render() {
     requestAnimationFrame(render);
-    ruotapiccione()
+    ruotapiccione();
+    ruotapiccioni();
     renderer.render(scene, camera);
 }
-
 var mesh = null;
 
 var materials = [
-
     new THREE.MeshStandardMaterial( {
       color: 0xE7E7E7,
       roughness: 0.5
@@ -49,6 +50,7 @@ function initMesh() {
             geometry,
             new THREE.MultiMaterial(materials)
         );
+        multiply();
         scene.add(piccione);
     });
 }
@@ -56,9 +58,38 @@ function initMesh() {
 var SPEED = 0.01;
 
 function ruotapiccione() {
-    piccione.rotation.x -= SPEED * 2;
+    //piccione.rotation.x -= SPEED * 2;
     piccione.rotation.y -= SPEED;
-    piccione.rotation.z -= SPEED * 3;
+    //piccione.rotation.z -= SPEED * 3;
+}
+
+function ruotapiccioni() {
+  for( i=0; i<piccioni.length; i++){
+    //piccioni[i].rotation.x -= SPEED;
+    piccioni[i].rotation.y -= SPEED*2;
+    //piccioni[i].rotation.z -= SPEED*3;
+
+  }
+}
+
+function multiply(){
+  for ( i=0; i<10; i++){
+    for ( j=0; j<10; j++){
+
+    var p=piccione.clone();
+    p.position.set(
+      10*i-50,
+      10*j-50,
+      Math.random()*-100
+    );
+    piccioni.push(p);
+    scene.add(p);
+    // p.position.x=Math.random()*100-50;
+    // p.position.y=Math.random()*100-50;
+    // p.position.z=Math.random()*100-50;
+    // scene.add(p);
+  }
+}
 }
 
 initLights();
