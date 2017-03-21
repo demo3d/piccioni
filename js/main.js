@@ -63,7 +63,7 @@ function init() {
     initTerrain();
 
     iniReflectionCubes();
-    //  initSky();
+    initSky();
 
 }
 
@@ -142,7 +142,7 @@ function initLights() {
 }
 
 function initTerrain() {
-    var geometry = new THREE.PlaneBufferGeometry(10000, 10000);
+    var geometry = new THREE.PlaneBufferGeometry(1000000, 1000000);
     geometry.rotateX(-Math.PI / 2);
     geometry.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0));
 
@@ -150,6 +150,7 @@ function initTerrain() {
 
     var material = new THREE.MeshStandardMaterial({
         roughness: 1,
+        color: 0xffffff
 
     })
     ground = new THREE.Mesh(geometry, material);
