@@ -52,7 +52,8 @@ function init() {
     container.appendChild(renderer.domElement);
 
     camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.z = 20;
+    camera.position.z = 30;
+    camera.position.y = 5;
 
     controls = new THREE.OrbitControls(camera, renderer.domElement);
     controls.target = new THREE.Vector3(0, 0.6, 0);
@@ -82,7 +83,7 @@ function initLights() {
 function initTerrain(){
     var geometry = new THREE.PlaneBufferGeometry(100, 100);
     geometry.rotateX(-Math.PI / 2);
-    geometry.applyMatrix( new THREE.Matrix4().makeTranslation( 0, -3, 0 ) );
+    geometry.applyMatrix( new THREE.Matrix4().makeTranslation( 0, 0, 0 ) );
 
     var material = new THREE.MeshStandardMaterial({
         color: 0xaaaaaa,
@@ -171,7 +172,16 @@ function rotateToFood(){
 
 function walkToFood(){
   if (food.length>0){
-    piccione.translateZ( 1 );
+
+    var vec1=piccione.position;
+    var vec2=food[food.length-1].position;
+    var distance = vec1.distanceTo( vec2 );
+    if (distance<3){
+      console.log(distance);
+      food.pop(food.length-1);
+    }else{
+      piccione.translateZ( 0.1 );
+    }
   }
 }
 
