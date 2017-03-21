@@ -108,10 +108,18 @@ function initMesh() {
 
         mixer = new THREE.AnimationMixer(piccione);
         console.log(geometry.animations);
-        action.walk = mixer.clipAction(geometry.animations[1]);
 
+        action.walk = mixer.clipAction(geometry.animations[2]);
         action.walk.setEffectiveWeight(1);
         action.walk.enabled = true;
+
+
+        action.bite = mixer.clipAction(geometry.animations[1]);
+        action.bite.setEffectiveWeight(1);
+        action.bite.enabled = true;
+        action.bite.setLoop( THREE.LoopOnce,0 );
+        action.bite.clampWhenFinished = true;
+
 
         //multiply();
         scene.add(piccione);
@@ -122,47 +130,10 @@ function initMesh() {
 
         animate();
         isLoaded = true;
-        action.walk.play();
+        //action.bite.play();
 
     });
 }
-
-// var SPEED = 0.01;
-//
-// function ruotapiccione() {
-//     //piccione.rotation.x -= SPEED * 2;
-//     piccione.rotation.y -= SPEED;
-//     //piccione.rotation.z -= SPEED * 3;
-// }
-
-// function ruotapiccioni() {
-//     for (i = 0; i < piccioni.length; i++) {
-//         //piccioni[i].rotation.x -= SPEED;
-//         piccioni[i].rotation.y -= SPEED * 2;
-//         //piccioni[i].rotation.z -= SPEED*3;
-//
-//     }
-// }
-
-// function multiply() {
-//     for (i = 0; i < 10; i++) {
-//         for (j = 0; j < 10; j++) {
-//
-//             var p = piccione.clone();
-//             p.position.set(
-//                 10 * i - 50,
-//                 10 * j - 50,
-//                 Math.random() * -50
-//             );
-//             piccioni.push(p);
-//             scene.add(p);
-//             // p.position.x=Math.random()*100-50;
-//             // p.position.y=Math.random()*100-50;
-//             // p.position.z=Math.random()*100-50;
-//             // scene.add(p);
-//         }
-//     }
-// }
 
 function rotateToFood(){
   if (food.length>0){
@@ -179,8 +150,14 @@ function walkToFood(){
     if (distance<4){
       scene.remove(food[food.length-1]);
       food.pop(food.length-1);
+      action.walk.stop();
+      action.bite.play();
+      action.bite.reset();
+
     }else{
       piccione.translateZ( 0.1 );
+      action.walk.play();
+
     }
   }
 }
