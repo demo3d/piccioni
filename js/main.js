@@ -1,7 +1,11 @@
 var clock
-var character, piccione;
-var piccioni = [];
+var character, piccione, ground;
+var food = [];
+
 var scene, renderer, camera, controls;
+
+var raycaster = new THREE.Raycaster();
+var mouse = new THREE.Vector2();
 
 var action = {},
     mixer;
@@ -44,7 +48,6 @@ function init() {
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setClearColor(0x9debf4, 1);
 
-
     container = document.getElementById('container');
     container.appendChild(renderer.domElement);
 
@@ -54,10 +57,13 @@ function init() {
     controls = new THREE.OrbitControls(camera, renderer.domElement);
     controls.target = new THREE.Vector3(0, 0.6, 0);
 
+    window.addEventListener('resize', onWindowResize, false);
+    window.addEventListener( 'mousedown', onMouseDown, false );
+
     initLights();
     initMesh();
+    initTerrain();
 }
-
 
 
 function initLights() {
@@ -65,12 +71,25 @@ function initLights() {
     scene.add(light);
 
     var light2 = new THREE.PointLight(0x0000ff, 1, 100);
-    light2.position.set(50, -50, 1);
+    light2.position.set(50, 50, 1);
     scene.add(light2);
 
     var light3 = new THREE.PointLight(0xffff00, 1, 100);
-    light3.position.set(-50, -50, 1);
+    light3.position.set(-50, 50, 1);
     scene.add(light3);
+}
+
+function initTerrain(){
+    var geometry = new THREE.PlaneBufferGeometry(100, 100);
+    geometry.rotateX(-Math.PI / 2);
+    geometry.applyMatrix( new THREE.Matrix4().makeTranslation( 0, -3, 0 ) );
+
+    var material = new THREE.MeshStandardMaterial({
+        color: 0xaaaaaa,
+        roughness: 0.5
+    })
+    ground = new THREE.Mesh(geometry, material);
+    scene.add(ground);
 }
 
 function initMesh() {
@@ -100,7 +119,6 @@ function initMesh() {
 				// skeletonHelper.material.linewidth = 2;
 				// scene.add( skeletonHelper );
 
-        window.addEventListener('resize', onWindowResize, false);
         animate();
         isLoaded = true;
         action.walk.play();
@@ -108,13 +126,13 @@ function initMesh() {
     });
 }
 
-var SPEED = 0.01;
-
-function ruotapiccione() {
-    //piccione.rotation.x -= SPEED * 2;
-    piccione.rotation.y -= SPEED;
-    //piccione.rotation.z -= SPEED * 3;
-}
+// var SPEED = 0.01;
+//
+// function ruotapiccione() {
+//     //piccione.rotation.x -= SPEED * 2;
+//     piccione.rotation.y -= SPEED;
+//     //piccione.rotation.z -= SPEED * 3;
+// }
 
 // function ruotapiccioni() {
 //     for (i = 0; i < piccioni.length; i++) {
@@ -145,11 +163,52 @@ function ruotapiccione() {
 //     }
 // }
 
+function rotateToFood(){
+  if (food.length>0){
+    piccione.lookAt(food[food.length-1].position);
+  }
+}
+
+function walkToFood(){
+  if (food.length>0){
+    piccione.translateZ( 1 );
+  }
+}
+
+function createFood(x,y,z){
+  var geometry = new THREE.BoxGeometry(.3, .3,.3);
+  // geometry.position( new THREE.Matrix4().makeTranslation( x, y, z ) );
+  var material = new THREE.MeshStandardMaterial({
+      color: 0xffaaaa,
+      roughness: 0.5
+  })
+  var f = new THREE.Mesh(geometry, material);
+  scene.add(f);
+  f.position.set( x, y, z );
+  food.push(f);
+}
+
+function onMouseDown(e){
+  mouse.x = 2 * (e.clientX / window.innerWidth) - 1;
+  mouse.y = 1 - 2 * ( e.clientY / window.innerHeight );
+  raycaster.setFromCamera( mouse, camera );
+
+  var terrains = [];
+  terrains.push( ground );
+
+  var intersects = raycaster.intersectObjects( terrains );
+
+  if ( intersects.length > 0 ) {
+    createFood(intersects[ 0 ].point.x,intersects[ 0 ].point.y,intersects[ 0 ].point.z);
+    rotateToFood();
+  }
+//  console.log(intersects);
+
+}
 
 function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
-
     renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
@@ -157,6 +216,8 @@ function animate () {
   requestAnimationFrame(animate);
   //ruotapiccione();
   controls.update();
+  walkToFood();
+
 
   render();
 }
