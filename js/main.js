@@ -176,8 +176,8 @@ function walkToFood(){
     var vec1=piccione.position;
     var vec2=food[food.length-1].position;
     var distance = vec1.distanceTo( vec2 );
-    if (distance<3){
-      console.log(distance);
+    if (distance<4){
+      scene.remove(food[food.length-1]);
       food.pop(food.length-1);
     }else{
       piccione.translateZ( 0.1 );
@@ -210,7 +210,6 @@ function onMouseDown(e){
 
   if ( intersects.length > 0 ) {
     createFood(intersects[ 0 ].point.x,intersects[ 0 ].point.y,intersects[ 0 ].point.z);
-    rotateToFood();
   }
 //  console.log(intersects);
 
@@ -226,6 +225,7 @@ function animate () {
   requestAnimationFrame(animate);
   //ruotapiccione();
   controls.update();
+  rotateToFood();
   walkToFood();
 
 
