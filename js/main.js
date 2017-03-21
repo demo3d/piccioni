@@ -1,7 +1,7 @@
 var clock
 var character, piccione;
 var piccioni = [];
-var scene, renderer, camera;
+var scene, renderer, camera, controls;
 
 var action = {},
     mixer;
@@ -39,13 +39,20 @@ function init() {
 
     scene = new THREE.Scene();
 
-    renderer = new THREE.WebGLRenderer();
+    renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setClearColor(0x9debf4, 1);
-    document.body.appendChild(renderer.domElement);
+
+
+    container = document.getElementById('container');
+    container.appendChild(renderer.domElement);
 
     camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 1000);
     camera.position.z = 20;
+
+    controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.target = new THREE.Vector3(0, 0.6, 0);
 
     initLights();
     initMesh();
@@ -89,9 +96,9 @@ function initMesh() {
         //multiply();
         scene.add(piccione);
 
-        skeletonHelper = new THREE.SkeletonHelper( piccione );
-				skeletonHelper.material.linewidth = 2;
-				scene.add( skeletonHelper );
+        // skeletonHelper = new THREE.SkeletonHelper( piccione );
+				// skeletonHelper.material.linewidth = 2;
+				// scene.add( skeletonHelper );
 
         window.addEventListener('resize', onWindowResize, false);
         animate();
@@ -148,7 +155,9 @@ function onWindowResize() {
 
 function animate () {
   requestAnimationFrame(animate);
-  ruotapiccione();
+  //ruotapiccione();
+  controls.update();
+
   render();
 }
 
